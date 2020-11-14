@@ -140,6 +140,46 @@ $(".list-group").on("blur", "input[type='text']", function()
   $(this).replaceWith(dateSpan);
 });
 
+// Make the list groups sortable (drag/drop)
+$(".card .list-group").sortable({
+  connectWith: $(".card .list-group"),
+  scroll: false,
+  tolerance: "pointer",
+  helper: "clone",
+  update: function(event) {
+    let tempArr = [];
+
+    // Loop through each child of the list group (list-group-item) and push its text/date to the temp array
+    $(this).children().each(function() {
+      let text = $(this).find("p").text().trim();
+      let date = $(this).find("span").text().trim();
+
+      tempArr.push({
+        text: text,
+        date: date
+      });
+    });
+
+    // Get task list name from list group ID
+    let arrName = $(this).attr("id").replace("list-", "");
+
+    // Update tasks array and save
+    tasks[arrName] = tempArr;
+    saveTasks();
+  }
+});
+
+// Make the trash a droppable area that deletes items
+$("#trash").droppable(
+{
+  accept: ".card .list-group-item",
+  tolerance: "touch",
+  drop: function(event, ui)
+  {
+    ui.draggable.remove();
+  }
+});
+
 // modal was triggered
 $("#task-form-modal").on("show.bs.modal", function() {
   // clear values
