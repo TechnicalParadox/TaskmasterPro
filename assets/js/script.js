@@ -1,5 +1,22 @@
 var tasks = {};
 
+var auditTask = function(task)
+{
+  let now = moment();
+  let dueDate = $(task).find("span").text().trim();
+  dueDate = moment(dueDate, "MM/DD/YYYY");
+
+  let hoursTilDue = dueDate.diff(now, "hours")
+
+  // remove classes in case date changes
+  task.removeClass("list-group-item-warning list-group-item-danger");
+
+  if (hoursTilDue <= 72 && hoursTilDue > 24)
+    task.addClass("list-group-item-warning");
+  else if (hoursTilDue <= 24)
+    task.addClass("list-group-item-danger");
+}
+
 var createTask = function(taskText, taskDate, taskList) {
   // create elements that make up a task item
   var taskLi = $("<li>").addClass("list-group-item");
@@ -13,6 +30,8 @@ var createTask = function(taskText, taskDate, taskList) {
   // append span and p element to parent li
   taskLi.append(taskSpan, taskP);
 
+  // check due date
+  auditTask(taskLi);
 
   // append to ul list on the page
   $("#list-" + taskList).append(taskLi);
@@ -106,12 +125,24 @@ $(".list-group").on("click", "span", function()
   // Swap out the <span> for the new <input>
   $(this).replaceWith(dateInput);
 
+  // enable jquery ui datepicker
+  dateInput.datepicker(
+    {
+      minDate: 0,
+      onClose: function()
+      {
+        // When callendar is closed, force a "change" event on the dateInput
+        $(this).trigger("change");
+      }
+    }
+  );
+
   // Bring element into focus
   dateInput.trigger("focus");
 });
 
 // When user clicks out of date, save and change back to span
-$(".list-group").on("blur", "input[type='text']", function()
+$(".list-group").on("change", "input[type='text']", function()
 {
   // get current text
   let date = $(this).val().trim();
@@ -138,6 +169,9 @@ $(".list-group").on("blur", "input[type='text']", function()
 
   // Replace <input> with <span> element
   $(this).replaceWith(dateSpan);
+
+  // Audit the task, in case urgency changes with date change
+  auditTask($(dateSpan).closest(".list-group-item"));
 });
 
 // Make the list groups sortable (drag/drop)
@@ -179,6 +213,9 @@ $("#trash").droppable(
     ui.draggable.remove();
   }
 });
+
+// add datepicker to modal due date field
+$("#modalDueDate").datepicker({minDate: 0});
 
 // modal was triggered
 $("#task-form-modal").on("show.bs.modal", function() {
