@@ -17,6 +17,15 @@ var auditTask = function(task)
     task.addClass("list-group-item-danger");
 }
 
+// Audit the tasks every hour
+setInterval(function()
+{
+  $(".card .list-group-item").each(function(index, el)
+  {
+    auditTask(el);
+  });
+}, 3600000); // 3.6e+6ms = 1hr
+
 var createTask = function(taskText, taskDate, taskList) {
   // create elements that make up a task item
   var taskLi = $("<li>").addClass("list-group-item");
