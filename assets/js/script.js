@@ -189,7 +189,8 @@ $(".card .list-group").sortable({
   scroll: false,
   tolerance: "pointer",
   helper: "clone",
-  update: function(event) {
+  update: function(event)
+  {
     let tempArr = [];
 
     // Loop through each child of the list group (list-group-item) and push its text/date to the temp array
@@ -209,6 +210,22 @@ $(".card .list-group").sortable({
     // Update tasks array and save
     tasks[arrName] = tempArr;
     saveTasks();
+  },
+  activate: function(event)
+  {
+    $(this).addClass("dropover");
+  },
+  deactivate: function(event)
+  {
+    $(this).removeClass("dropover");
+  },
+  over: function(event)
+  {
+    $(event.target).addClass("dropover-active");
+  },
+  out: function(event)
+  {
+    $(event.target).removeClass("dropover-active");
   }
 });
 
